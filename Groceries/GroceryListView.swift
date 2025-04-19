@@ -32,6 +32,7 @@ struct GroceryListView: View {
                     Toggle("Needs Only", isOn: $showOnlyNeeds)
                         .toggleStyle(SwitchToggleStyle())
                         .padding(.leading)
+                    
                 }
                 .padding()
 

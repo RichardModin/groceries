@@ -23,12 +23,29 @@ struct MealsView: View {
                                         .foregroundColor(.red)
                                 }
                             }
-                            Text(meal.name)
+                            VStack(alignment: .leading) {
+                                Text(meal.name)
+                                if !meal.groceries.isEmpty {
+                                    Text(meal.groceries.map { $0.name }.joined(separator: ", "))
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                            }
                             Spacer()
                             Button(action: {
                                 if let index = meals.firstIndex(where: { $0.id == meal.id }) {
                                     meals[index].need.toggle()
                                     saveMeals() // Save the updated state
+                                    
+                                    // Update the corresponding grocery items
+                                    for grocery in meal.groceries {
+                                        if let groceryIndex = groceryList.items.firstIndex(where: { $0.id == grocery.id }) {
+                                            groceryList.items[groceryIndex].need = meals[index].need
+                                        }
+                                    }
+                                    
+                                    // Save the updated grocery list
+                                    saveGroceryList()
                                 }
                             }) {
                                 Image(systemName: meal.need ? "checkmark.circle.fill" : "circle")
@@ -71,6 +88,12 @@ struct MealsView: View {
         if let data = UserDefaults.standard.data(forKey: "Meals"),
            let decoded = try? JSONDecoder().decode([Meal].self, from: data) {
             meals = decoded
+        }
+    }
+    
+    private func saveGroceryList() {
+        if let encoded = try? JSONEncoder().encode(groceryList.items) {
+            UserDefaults.standard.set(encoded, forKey: "GroceryList")
         }
     }
 }
