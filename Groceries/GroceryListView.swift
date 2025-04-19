@@ -6,6 +6,7 @@ struct GroceryListView: View {
     @State private var isEditing = false
     @State private var selectedStore = "All"
     @State private var showOnlyNeeds = false
+    @State private var isPresentingFilters = false
 
     let stores = ["All", "SuperStore", "Metro", "Walmart", "PetsMart", "Georges Market"]
 
@@ -20,19 +21,107 @@ struct GroceryListView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
-                HStack {
-                    Picker("Filter by store", selection: $selectedStore) {
-                        ForEach(stores, id: \.self) { store in
-                            Text(store)
+            ZStack {
+                VStack {
+                    List {
+                        ForEach(filteredGroceryList) { item in
+                            HStack {
+                                if isEditing {
+                                    Button(action: {
+                                        if let index = groceryList.items.firstIndex(of: item) {
+                                            groceryList.items.remove(at: index)
+                                            saveGroceryList()
+                                        }
+                                    }) {
+                                        Image(systemName: "minus.circle")
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                                VStack(alignment: .leading) {
+                                    Text(item.name)
+                                    Text(item.store)
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                                Button(action: {
+                                    if let index = groceryList.items.firstIndex(of: item) {
+                                        groceryList.items[index].need.toggle()
+                                        saveGroceryList()
+                                    }
+                                }) {
+                                    Image(systemName: item.need ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(item.need ? .green : .gray)
+                                }
+                            }
                         }
                     }
-                    .pickerStyle(MenuPickerStyle())
-                    
-                    Toggle("Needs Only", isOn: $showOnlyNeeds)
-                        .toggleStyle(SwitchToggleStyle())
-                        .padding(.leading)
-                    
+                }
+                .navigationTitle("Groceries")
+                .navigationBarItems(
+                    leading: Button(action: {
+                        isEditing.toggle()
+                    }) {
+                        Text(isEditing ? "Done" : "Edit")
+                    },
+                    trailing: Button(action: {
+                        isPresentingAddForm = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                )
+                .sheet(isPresented: $isPresentingAddForm) {
+                    AddGroceryView { newItem in
+                        groceryList.items.append(newItem)
+                        saveGroceryList()
+                    }
+                }
+                .onAppear {
+                    loadGroceryList()
+                }
+
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            isPresentingFilters = true
+                        }) {
+                            Image(systemName: "line.horizontal.3.decrease.circle.fill")
+                                .resizable()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.blue)
+                                .padding()
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $isPresentingFilters) {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("Filters")
+                        .font(.headline)
+                        .padding(.bottom)
+
+                    VStack(alignment: .leading) {
+                        Text("Store")
+                            .font(.subheadline)
+                            .bold()
+                        Picker("Filter by store", selection: $selectedStore) {
+                            ForEach(stores, id: \.self) { store in
+                                Text(store)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                    }
+
+                    VStack(alignment: .leading) {
+                        Text("Options")
+                            .font(.subheadline)
+                            .bold()
+                        Toggle("Needs Only", isOn: $showOnlyNeeds)
+                            .toggleStyle(SwitchToggleStyle())
+                    }
+
                     Button(action: {
                         for index in groceryList.items.indices {
                             groceryList.items[index].need = false
@@ -42,65 +131,11 @@ struct GroceryListView: View {
                         Text("Uncheck All")
                             .foregroundColor(.blue)
                     }
-                    
+                    .padding(.top)
+
+                    Spacer()
                 }
                 .padding()
-
-                List {
-                    ForEach(filteredGroceryList) { item in
-                        HStack {
-                            if isEditing {
-                                Button(action: {
-                                    if let index = groceryList.items.firstIndex(of: item) {
-                                        groceryList.items.remove(at: index)
-                                        saveGroceryList()
-                                    }
-                                }) {
-                                    Image(systemName: "minus.circle")
-                                        .foregroundColor(.red)
-                                }
-                            }
-                            VStack(alignment: .leading) {
-                                Text(item.name)
-                                Text(item.store)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            Button(action: {
-                                if let index = groceryList.items.firstIndex(of: item) {
-                                    groceryList.items[index].need.toggle()
-                                    saveGroceryList()
-                                }
-                            }) {
-                                Image(systemName: item.need ? "checkmark.circle.fill" : "circle")
-                                    .foregroundColor(item.need ? .green : .gray)
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Grocery List")
-            .navigationBarItems(
-                leading: Button(action: {
-                    isEditing.toggle()
-                }) {
-                    Text(isEditing ? "Done" : "Edit")
-                },
-                trailing: Button(action: {
-                    isPresentingAddForm = true
-                }) {
-                    Image(systemName: "plus")
-                }
-            )
-            .sheet(isPresented: $isPresentingAddForm) {
-                AddGroceryView { newItem in
-                    groceryList.items.append(newItem)
-                    saveGroceryList()
-                }
-            }
-            .onAppear {
-                loadGroceryList()
             }
         }
     }
