@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MealsView: View {
+    @ObservedObject var groceryList: GroceryList
     @State private var isEditing = false
     @State private var isPresentingAddMealForm = false
     @State private var meals: [Meal] = []
@@ -13,7 +14,7 @@ struct MealsView: View {
                         HStack {
                             if isEditing {
                                 Button(action: {
-                                    if let index = meals.firstIndex(of: meal) {
+                                    if let index = meals.firstIndex(where: { $0.id == meal.id }) {
                                         meals.remove(at: index)
                                         saveMeals()
                                     }
@@ -23,6 +24,17 @@ struct MealsView: View {
                                 }
                             }
                             Text(meal.name)
+                            Spacer()
+                            Button(action: {
+                                if let index = meals.firstIndex(where: { $0.id == meal.id }) {
+                                    meals[index].need.toggle()
+                                    saveMeals() // Save the updated state
+                                }
+                            }) {
+                                Image(systemName: meal.need ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(meal.need ? .green : .gray)
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                 }

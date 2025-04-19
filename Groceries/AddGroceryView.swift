@@ -6,7 +6,7 @@ struct AddGroceryView: View {
     @State private var selectedStore = "None"
     var onAdd: (GroceryItem) -> Void
 
-    let stores = ["SuperStore", "Metro", "Walmart", "PetsMart", "Georges Market"]
+    let stores = ["None", "SuperStore", "Metro", "Walmart", "PetsMart", "Georges Market"]
 
     var body: some View {
         NavigationView {

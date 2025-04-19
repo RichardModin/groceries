@@ -1,16 +1,17 @@
 import SwiftUI
 
 struct GroceryListView: View {
-    @State private var groceryList: [GroceryItem] = []
+    @ObservedObject var groceryList: GroceryList
     @State private var isPresentingAddForm = false
     @State private var isEditing = false
     @State private var selectedStore = "All"
-    @State private var showOnlyNeeds = false;
+    @State private var showOnlyNeeds = false
 
     let stores = ["All", "SuperStore", "Metro", "Walmart", "PetsMart", "Georges Market"]
 
     var filteredGroceryList: [GroceryItem] {
-        var list = selectedStore == "All" ? groceryList : groceryList.filter { $0.store == selectedStore }
+        var list = selectedStore == "All" ? groceryList.items :
+            groceryList.items.filter { $0.store == selectedStore }
         if showOnlyNeeds {
             list = list.filter { $0.need }
         }
@@ -39,8 +40,8 @@ struct GroceryListView: View {
                         HStack {
                             if isEditing {
                                 Button(action: {
-                                    if let index = groceryList.firstIndex(of: item) {
-                                        groceryList.remove(at: index)
+                                    if let index = groceryList.items.firstIndex(of: item) {
+                                        groceryList.items.remove(at: index)
                                         saveGroceryList()
                                     }
                                 }) {
@@ -56,8 +57,8 @@ struct GroceryListView: View {
                             }
                             Spacer()
                             Button(action: {
-                                if let index = groceryList.firstIndex(of: item) {
-                                    groceryList[index].need.toggle()
+                                if let index = groceryList.items.firstIndex(of: item) {
+                                    groceryList.items[index].need.toggle()
                                     saveGroceryList()
                                 }
                             }) {
@@ -83,7 +84,7 @@ struct GroceryListView: View {
             )
             .sheet(isPresented: $isPresentingAddForm) {
                 AddGroceryView { newItem in
-                    groceryList.append(newItem)
+                    groceryList.items.append(newItem)
                     saveGroceryList()
                 }
             }
@@ -94,7 +95,7 @@ struct GroceryListView: View {
     }
 
     private func saveGroceryList() {
-        if let encoded = try? JSONEncoder().encode(groceryList) {
+        if let encoded = try? JSONEncoder().encode(groceryList.items) {
             UserDefaults.standard.set(encoded, forKey: "GroceryList")
         }
     }
@@ -102,7 +103,7 @@ struct GroceryListView: View {
     private func loadGroceryList() {
         if let data = UserDefaults.standard.data(forKey: "GroceryList"),
            let decoded = try? JSONDecoder().decode([GroceryItem].self, from: data) {
-            groceryList = decoded
+            groceryList.items = decoded
         }
     }
 }

@@ -1,15 +1,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var groceryList = GroceryList()
+
     var body: some View {
         TabView {
-            GroceryListView()
+            GroceryListView(groceryList: groceryList)
                 .tabItem {
                     Image(systemName: "cart")
                     Text("Groceries")
                 }
             
-            MealsView()
+            MealsView(groceryList: groceryList)
                 .tabItem {
                     Image(systemName: "fork.knife")
                     Text("Meals")
