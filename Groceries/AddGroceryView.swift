@@ -1,12 +1,11 @@
 import SwiftUI
 
 struct AddGroceryView: View {
+    @ObservedObject var stores: Stores
     @Environment(\.dismiss) var dismiss
     @State private var newItem = ""
     @State private var selectedStore = "None"
     var onAdd: (GroceryItem) -> Void
-
-    let stores = ["None", "SuperStore", "Metro", "Walmart", "PetsMart", "Georges Market"]
 
     var body: some View {
         NavigationView {
@@ -16,7 +15,8 @@ struct AddGroceryView: View {
                 }
                 Section(header: Text("Store")) {
                     Picker("Select a store", selection: $selectedStore) {
-                        ForEach(stores, id: \.self) { store in
+                        Text("None").tag("None")
+                        ForEach(stores.storeList, id: \.self) { store in
                             Text(store)
                         }
                     }

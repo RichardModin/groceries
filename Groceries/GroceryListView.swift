@@ -2,13 +2,12 @@ import SwiftUI
 
 struct GroceryListView: View {
     @ObservedObject var groceryList: GroceryList
+    @ObservedObject var stores: Stores
     @State private var isPresentingAddForm = false
     @State private var isEditing = false
     @State private var selectedStore = "All"
     @State private var showOnlyNeeds = false
     @State private var isPresentingFilters = false
-
-    let stores = ["All", "SuperStore", "Metro", "Walmart", "PetsMart", "Georges Market"]
 
     var filteredGroceryList: [GroceryItem] {
         var list = selectedStore == "All" ? groceryList.items :
@@ -17,6 +16,11 @@ struct GroceryListView: View {
             list = list.filter { $0.need }
         }
         return list
+    }
+    
+    var groceryStores: [String] {
+        let uniqueStores = Set(groceryList.items.map { $0.store })
+        return uniqueStores.sorted()
     }
 
     var body: some View {
@@ -71,7 +75,7 @@ struct GroceryListView: View {
                     }
                 )
                 .sheet(isPresented: $isPresentingAddForm) {
-                    AddGroceryView { newItem in
+                    AddGroceryView(stores: stores) { newItem in
                         groceryList.items.append(newItem)
                         saveGroceryList()
                     }
@@ -107,8 +111,9 @@ struct GroceryListView: View {
                             .font(.subheadline)
                             .bold()
                         Picker("Filter by store", selection: $selectedStore) {
-                            ForEach(stores, id: \.self) { store in
-                                Text(store)
+                            Text("All").tag("All")
+                            ForEach(groceryStores, id: \.self) { store in
+                                Text(store).tag(store)
                             }
                         }
                         .pickerStyle(MenuPickerStyle())
