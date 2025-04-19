@@ -10,13 +10,11 @@ struct GroceryListView: View {
     @State private var showOnlyNeeds = false
     @State private var isPresentingFilters = false
 
-    var filteredGroceryList: [GroceryItem] {
-        var list = selectedStore == "All" ? groceryList.items :
+    var groupedGroceryList: [String: [GroceryItem]] {
+        let filteredList = selectedStore == "All" ? groceryList.items :
             groceryList.items.filter { $0.store == selectedStore }
-        if showOnlyNeeds {
-            list = list.filter { $0.need }
-        }
-        return list
+        let finalList = showOnlyNeeds ? filteredList.filter { $0.need } : filteredList
+        return Dictionary(grouping: finalList, by: { $0.group })
     }
     
     var groceryStores: [String] {
@@ -29,34 +27,38 @@ struct GroceryListView: View {
             ZStack {
                 VStack {
                     List {
-                        ForEach(filteredGroceryList) { item in
-                            HStack {
-                                if isEditing {
-                                    Button(action: {
-                                        if let index = groceryList.items.firstIndex(of: item) {
-                                            groceryList.items.remove(at: index)
-                                            saveGroceryList()
+                        ForEach(groupedGroceryList.keys.sorted(), id: \.self) { group in
+                            Section(header: Text(group)) {
+                                ForEach(groupedGroceryList[group] ?? []) { item in
+                                    HStack {
+                                        if isEditing {
+                                            Button(action: {
+                                                if let index = groceryList.items.firstIndex(of: item) {
+                                                    groceryList.items.remove(at: index)
+                                                    saveGroceryList()
+                                                }
+                                            }) {
+                                                Image(systemName: "minus.circle")
+                                                    .foregroundColor(.red)
+                                            }
                                         }
-                                    }) {
-                                        Image(systemName: "minus.circle")
-                                            .foregroundColor(.red)
+                                        VStack(alignment: .leading) {
+                                            Text(item.name)
+                                            Text(item.store)
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
+                                        }
+                                        Spacer()
+                                        Button(action: {
+                                            if let index = groceryList.items.firstIndex(of: item) {
+                                                groceryList.items[index].need.toggle()
+                                                saveGroceryList()
+                                            }
+                                        }) {
+                                            Image(systemName: item.need ? "checkmark.circle.fill" : "circle")
+                                                .foregroundColor(item.need ? .green : .gray)
+                                        }
                                     }
-                                }
-                                VStack(alignment: .leading) {
-                                    Text(item.name)
-                                    Text(item.store)
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
-                                }
-                                Spacer()
-                                Button(action: {
-                                    if let index = groceryList.items.firstIndex(of: item) {
-                                        groceryList.items[index].need.toggle()
-                                        saveGroceryList()
-                                    }
-                                }) {
-                                    Image(systemName: item.need ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(item.need ? .green : .gray)
                                 }
                             }
                         }
