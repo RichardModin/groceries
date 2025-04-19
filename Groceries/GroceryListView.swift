@@ -33,6 +33,16 @@ struct GroceryListView: View {
                         .toggleStyle(SwitchToggleStyle())
                         .padding(.leading)
                     
+                    Button(action: {
+                        for index in groceryList.items.indices {
+                            groceryList.items[index].need = false
+                        }
+                        saveGroceryList()
+                    }) {
+                        Text("Uncheck All")
+                            .foregroundColor(.blue)
+                    }
+                    
                 }
                 .padding()
 
