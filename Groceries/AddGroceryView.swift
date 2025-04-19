@@ -1,0 +1,40 @@
+import SwiftUI
+
+struct AddGroceryView: View {
+    @Environment(\.dismiss) var dismiss
+    @State private var newItem = ""
+    @State private var selectedStore = "None"
+    var onAdd: (GroceryItem) -> Void
+
+    let stores = ["SuperStore", "Metro", "Walmart", "PetsMart", "Georges Market"]
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("New Item")) {
+                    TextField("Enter grocery item", text: $newItem)
+                }
+                Section(header: Text("Store")) {
+                    Picker("Select a store", selection: $selectedStore) {
+                        ForEach(stores, id: \.self) { store in
+                            Text(store)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                }
+            }
+            .navigationTitle("Add Grocery")
+            .navigationBarItems(
+                leading: Button("Cancel") {
+                    dismiss()
+                },
+                trailing: Button("Save") {
+                    let trimmed = newItem.trimmingCharacters(in: .whitespaces)
+                    guard !trimmed.isEmpty else { return }
+                    onAdd(GroceryItem(name: trimmed, store: selectedStore))
+                    dismiss()
+                }
+            )
+        }
+    }
+}
