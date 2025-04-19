@@ -3,6 +3,7 @@ import SwiftUI
 struct GroceryListView: View {
     @ObservedObject var groceryList: GroceryList
     @ObservedObject var stores: Stores
+    @ObservedObject var groups: Groups
     @State private var isPresentingAddForm = false
     @State private var isEditing = false
     @State private var selectedStore = "All"
@@ -75,13 +76,15 @@ struct GroceryListView: View {
                     }
                 )
                 .sheet(isPresented: $isPresentingAddForm) {
-                    AddGroceryView(stores: stores) { newItem in
+                    AddGroceryView(stores: stores, groups: groups) { newItem in
                         groceryList.items.append(newItem)
                         saveGroceryList()
                     }
                 }
                 .onAppear {
                     loadGroceryList()
+                    loadStores()
+                    loadGroups()
                 }
 
                 VStack {
@@ -156,6 +159,18 @@ struct GroceryListView: View {
         if let data = UserDefaults.standard.data(forKey: "GroceryList"),
            let decoded = try? JSONDecoder().decode([GroceryItem].self, from: data) {
             groceryList.items = decoded
+        }
+    }
+    
+    private func loadStores() {
+        if let savedStores = UserDefaults.standard.array(forKey: "SavedStores") as? [String] {
+            stores.storeList = savedStores
+        }
+    }
+
+    private func loadGroups() {
+        if let savedGroups = UserDefaults.standard.array(forKey: "SavedGroups") as? [String] {
+            groups.groupList = savedGroups
         }
     }
 }

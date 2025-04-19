@@ -13,6 +13,7 @@ struct StoresView: View {
                         Button(action: {
                             if !storeName.isEmpty {
                                 stores.storeList.append(storeName)
+                                saveStores()
                                 storeName = ""
                             }
                         }) {
@@ -29,6 +30,7 @@ struct StoresView: View {
                                     Button(action: {
                                         if let index = stores.storeList.firstIndex(of: store) {
                                             stores.storeList.remove(at: index)
+                                            saveStores()
                                         }
                                     }) {
                                         Image(systemName: "trash")
@@ -41,6 +43,17 @@ struct StoresView: View {
                 }
             }
             .navigationTitle("Stores")
+            .onAppear(perform: loadStores)
+        }
+    }
+
+    private func saveStores() {
+        UserDefaults.standard.set(stores.storeList, forKey: "SavedStores")
+    }
+
+    private func loadStores() {
+        if let savedStores = UserDefaults.standard.array(forKey: "SavedStores") as? [String] {
+            stores.storeList = savedStores
         }
     }
 }

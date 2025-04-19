@@ -3,10 +3,11 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var groceryList = GroceryList()
     @StateObject private var stores = Stores()
+    @StateObject private var groups = Groups()
 
     var body: some View {
         TabView {
-            GroceryListView(groceryList: groceryList, stores: stores)
+            GroceryListView(groceryList: groceryList, stores: stores, groups: groups)
                 .tabItem {
                     Image(systemName: "cart")
                     Text("Groceries")
@@ -22,6 +23,12 @@ struct ContentView: View {
                 .tabItem {
                     Image(systemName: "building.2")
                     Text("Stores")
+                }
+            
+            GroupsView(groups: groups)
+                .tabItem {
+                    Image(systemName: "person.3")
+                    Text("Groups")
                 }
         }
     }
