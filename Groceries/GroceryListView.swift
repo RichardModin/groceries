@@ -103,7 +103,8 @@ struct GroceryListView: View {
             .sheet(isPresented: $isPresentingFilters) {
                 VStack(alignment: .leading, spacing: 20) {
                     Text("Filters")
-                        .font(.headline)
+                        .font(.largeTitle)
+                        .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.bottom)
 
                     VStack(alignment: .leading) {
