@@ -21,10 +21,12 @@ struct AddMealView: View {
                     Text("Add Groceries")
                         .font(.headline)
                         .padding()
-                        .background(Color.green)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .cornerRadius(10)
                 }
+                .padding(.horizontal)
                 .sheet(isPresented: $isPresentingGroceryList) {
                     GrocerySelectionView(selectedGroceries: $selectedGroceries)
                 }
@@ -41,7 +43,9 @@ struct AddMealView: View {
                     presentationMode.wrappedValue.dismiss()
                 },
                 trailing: Button("Save") {
-                    let newMeal = Meal(name: mealName, groceries: selectedGroceries)
+                    let trimmed = mealName.trimmingCharacters(in: .whitespaces)
+                    guard !trimmed.isEmpty else { return }
+                    let newMeal = Meal(name: trimmed, groceries: selectedGroceries)
                     meals.append(newMeal)
                     saveMeals()
                     presentationMode.wrappedValue.dismiss()

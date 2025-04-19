@@ -8,14 +8,16 @@ struct GrocerySelectionView: View {
         NavigationView {
             List(groceryList) { grocery in
                 Button(action: {
-                    if !selectedGroceries.contains(grocery) {
+                    if let index = selectedGroceries.firstIndex(where: { $0.id == grocery.id }) {
+                        selectedGroceries.remove(at: index)
+                    } else {
                         selectedGroceries.append(grocery)
                     }
                 }) {
                     HStack {
                         Text(grocery.name)
                         Spacer()
-                        if selectedGroceries.contains(grocery) {
+                        if selectedGroceries.contains(where: { $0.id == grocery.id }) {
                             Image(systemName: "checkmark")
                                 .foregroundColor(.green)
                         }

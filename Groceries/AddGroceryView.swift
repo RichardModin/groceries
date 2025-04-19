@@ -45,6 +45,7 @@ struct AddGroceryView: View {
                     onAdd(GroceryItem(name: trimmed, store: selectedStore, group: selectedGroup))
                     dismiss()
                 }
+                .disabled(newItem.isEmpty)
             )
         }
     }

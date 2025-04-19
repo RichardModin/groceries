@@ -88,7 +88,7 @@ struct GroceryListView: View {
                     loadStores()
                     loadGroups()
                 }
-
+                
                 VStack {
                     Spacer()
                     HStack {
@@ -111,39 +111,63 @@ struct GroceryListView: View {
                         .font(.largeTitle)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.bottom)
-
-                    VStack(alignment: .leading) {
-                        Text("Store")
-                            .font(.subheadline)
-                            .bold()
-                        Picker("Filter by store", selection: $selectedStore) {
-                            Text("All").tag("All")
-                            ForEach(groceryStores, id: \.self) { store in
-                                Text(store).tag(store)
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text("Store")
+                                .font(.subheadline)
+                                .bold()
+                            Spacer()
+                            Picker("Filter by store", selection: $selectedStore) {
+                                Text("All").tag("All")
+                                ForEach(groceryStores, id: \.self) { store in
+                                    Text(store).tag(store)
+                                }
                             }
+                            .pickerStyle(MenuPickerStyle())
                         }
-                        .pickerStyle(MenuPickerStyle())
                     }
-
-                    VStack(alignment: .leading) {
-                        Text("Options")
-                            .font(.subheadline)
-                            .bold()
-                        Toggle("Needs Only", isOn: $showOnlyNeeds)
+                    .padding()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Lighter gray border
+                            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2) // Larger, darker shadow
+                    )
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text("Options")
+                                .font(.subheadline)
+                                .bold()
+                            Spacer()
+                            Toggle(isOn: $showOnlyNeeds) {
+                                Text("Needs Only")
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
                             .toggleStyle(SwitchToggleStyle())
-                    }
-
-                    Button(action: {
-                        for index in groceryList.items.indices {
-                            groceryList.items[index].need = false
                         }
-                        saveGroceryList()
-                    }) {
-                        Text("Uncheck All")
-                            .foregroundColor(.blue)
                     }
-                    .padding(.top)
-
+                    .padding()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Lighter gray border
+                            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2) // Larger, darker shadow
+                    )
+                    
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            for index in groceryList.items.indices {
+                                groceryList.items[index].need = false
+                            }
+                            saveGroceryList()
+                        }) {
+                            Text("Uncheck All")
+                                .foregroundColor(.blue)
+                        }
+                        .padding(.top)
+                    }
+                    
                     Spacer()
                 }
                 .padding()
