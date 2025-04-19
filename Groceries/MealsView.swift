@@ -51,7 +51,6 @@ struct MealsView: View {
                                 Image(systemName: meal.need ? "checkmark.circle.fill" : "circle")
                                     .foregroundColor(meal.need ? .green : .gray)
                             }
-                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                 }
