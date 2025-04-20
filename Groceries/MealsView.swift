@@ -37,15 +37,17 @@ struct MealsView: View {
                                     meals[index].need.toggle()
                                     saveMeals() // Save the updated state
                                     
-                                    // Update the corresponding grocery items
-                                    for grocery in meal.groceries {
-                                        if let groceryIndex = groceryList.items.firstIndex(where: { $0.id == grocery.id }) {
-                                            groceryList.items[groceryIndex].need = meals[index].need
+                                    if meals[index].need {
+                                        // Update the corresponding grocery items only if meal.need is true
+                                        for grocery in meal.groceries {
+                                            if let groceryIndex = groceryList.items.firstIndex(where: { $0.id == grocery.id }) {
+                                                groceryList.items[groceryIndex].need = true
+                                            }
                                         }
+                                        
+                                        // Save the updated grocery list
+                                        saveGroceryList()
                                     }
-                                    
-                                    // Save the updated grocery list
-                                    saveGroceryList()
                                 }
                             }) {
                                 Image(systemName: meal.need ? "checkmark.circle.fill" : "circle")
