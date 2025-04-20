@@ -76,7 +76,7 @@ struct GroceryListView: View {
                     loadStores()
                     loadGroups()
                 }
-                
+
                 VStack {
                     Spacer()
                     HStack {
@@ -99,7 +99,7 @@ struct GroceryListView: View {
                         .font(.largeTitle)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.bottom)
-                    
+
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Text("Store")
@@ -121,7 +121,7 @@ struct GroceryListView: View {
                             .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Lighter gray border
                             .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2) // Larger, darker shadow
                     )
-                    
+
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Text("Options")
@@ -141,7 +141,7 @@ struct GroceryListView: View {
                             .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Lighter gray border
                             .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2) // Larger, darker shadow
                     )
-                    
+
                     HStack {
                         Spacer()
                         Button(action: {
@@ -155,7 +155,7 @@ struct GroceryListView: View {
                         }
                         .padding(.top)
                     }
-                    
+
                     Spacer()
                 }
                 .padding()
