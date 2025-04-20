@@ -147,6 +147,7 @@ struct GroceryListView: View {
                         Button(action: {
                             for index in groceryList.items.indices {
                                 groceryList.items[index].need = false
+                                groceryList.items[index].inCart = false
                             }
                             saveGroceryList()
                         }) {
