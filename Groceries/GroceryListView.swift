@@ -6,6 +6,7 @@ struct GroceryListView: View {
     @ObservedObject var groups: Groups
     @State private var isPresentingAddForm = false
     @State private var isEditing = false
+    @State private var locked = false
     @State private var selectedStore = "All"
     @State private var showOnlyNeeds = false
     @State private var isPresentingFilters = false
@@ -31,17 +32,6 @@ struct GroceryListView: View {
                             Section(header: Text(group)) {
                                 ForEach(groupedGroceryList[group] ?? []) { item in
                                     HStack {
-                                        if isEditing {
-                                            Button(action: {
-                                                if let index = groceryList.items.firstIndex(of: item) {
-                                                    groceryList.items.remove(at: index)
-                                                    saveGroceryList()
-                                                }
-                                            }) {
-                                                Image(systemName: "minus.circle")
-                                                    .foregroundColor(.red)
-                                            }
-                                        }
                                         VStack(alignment: .leading) {
                                             Text(item.name)
                                             Text(item.store)
@@ -60,17 +50,15 @@ struct GroceryListView: View {
                                         }
                                     }
                                 }
+                                .onDelete { offsets in
+                                    deleteGrocery(at: offsets, in: group)
+                                }
                             }
                         }
                     }
                 }
                 .navigationTitle("Groceries")
                 .navigationBarItems(
-                    leading: Button(action: {
-                        isEditing.toggle()
-                    }) {
-                        Text(isEditing ? "Done" : "Edit")
-                    },
                     trailing: Button(action: {
                         isPresentingAddForm = true
                     }) {
@@ -172,6 +160,17 @@ struct GroceryListView: View {
                 }
                 .padding()
             }
+        }
+    }
+
+    private func deleteGrocery(at offsets: IndexSet, in group: String) {
+        if let itemsInGroup = groupedGroceryList[group] {
+            for index in offsets {
+                if let itemIndex = groceryList.items.firstIndex(of: itemsInGroup[index]) {
+                    groceryList.items.remove(at: itemIndex)
+                }
+            }
+            saveGroceryList()
         }
     }
 
