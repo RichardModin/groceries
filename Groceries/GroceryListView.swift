@@ -59,6 +59,9 @@ struct GroceryListView: View {
                 }
                 .navigationTitle("Groceries")
                 .navigationBarItems(
+                    leading: Button("Filters") {
+                        isPresentingFilters = true
+                    },
                     trailing: Button(action: {
                         isPresentingAddForm = true
                     }) {
