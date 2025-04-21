@@ -3,7 +3,9 @@ import SwiftUI
 struct MealsView: View {
     @ObservedObject var groceryList: GroceryList
     @State private var isPresentingAddMealForm = false
+    @State private var isPresentingEditMealForm = false
     @State private var meals: [Meal] = []
+    @State private var mealToEdit: Meal?
 
     var body: some View {
         NavigationView {
@@ -49,6 +51,15 @@ struct MealsView: View {
                                 Label("Delete", systemImage: "trash")
                             }
                         }
+                        .swipeActions(edge: .leading) {
+                            Button {
+                                mealToEdit = meal
+                                isPresentingEditMealForm = true
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.blue)
+                        }
                     }
                 }
             }
@@ -62,6 +73,11 @@ struct MealsView: View {
             )
             .sheet(isPresented: $isPresentingAddMealForm) {
                 AddMealView(meals: $meals, saveMeals: saveMeals)
+            }
+            .sheet(isPresented: $isPresentingEditMealForm) {
+                if let mealToEdit = mealToEdit {
+                    EditMealView(meal: Binding(get: { mealToEdit }, set: { self.mealToEdit = $0 }), meals: $meals, saveMeals: saveMeals)
+                }
             }
             .onAppear {
                 loadMeals()
