@@ -1,17 +1,17 @@
 import SwiftUI
 
 struct MealsView: View {
-    @ObservedObject var groceryList: GroceryList
-    @State private var isPresentingAddMealForm = false
-    @State private var isPresentingEditMealForm = false
-    @State private var meals: [Meal] = []
-    @State private var mealToEdit: Meal?
+    @StateObject private var viewModel: MealsViewModel
+
+    init(groceryList: GroceryList) {
+        _viewModel = StateObject(wrappedValue: MealsViewModel(groceryList: groceryList))
+    }
 
     var body: some View {
         NavigationView {
             VStack {
                 List {
-                    ForEach(meals) { meal in
+                    ForEach(viewModel.meals) { meal in
                         HStack {
                             VStack(alignment: .leading) {
                                 Text(meal.name)
@@ -23,19 +23,7 @@ struct MealsView: View {
                             }
                             Spacer()
                             Button(action: {
-                                if let index = meals.firstIndex(where: { $0.id == meal.id }) {
-                                    meals[index].need.toggle()
-                                    saveMeals()
-                                    
-                                    if meals[index].need {
-                                        for grocery in meal.groceries {
-                                            if let groceryIndex = groceryList.items.firstIndex(where: { $0.id == grocery.id }) {
-                                                groceryList.items[groceryIndex].need = true
-                                            }
-                                        }
-                                        saveGroceryList()
-                                    }
-                                }
+                                viewModel.toggleMealNeed(for: meal)
                             }) {
                                 Image(systemName: meal.need ? "checkmark.circle.fill" : "circle")
                                     .foregroundColor(meal.need ? .green : .gray)
@@ -43,9 +31,8 @@ struct MealsView: View {
                         }
                         .swipeActions(edge: .trailing) {
                             Button(role: .destructive) {
-                                if let index = meals.firstIndex(where: { $0.id == meal.id }) {
-                                    meals.remove(at: index)
-                                    saveMeals()
+                                if let index = viewModel.meals.firstIndex(where: { $0.id == meal.id }) {
+                                    viewModel.deleteMeal(at: index)
                                 }
                             } label: {
                                 Label("Delete", systemImage: "trash")
@@ -53,8 +40,7 @@ struct MealsView: View {
                         }
                         .swipeActions(edge: .leading) {
                             Button {
-                                mealToEdit = meal
-                                isPresentingEditMealForm = true
+                                viewModel.editMeal(meal)
                             } label: {
                                 Label("Edit", systemImage: "pencil")
                             }
@@ -66,41 +52,19 @@ struct MealsView: View {
             .navigationTitle("Meals")
             .navigationBarItems(
                 trailing: Button(action: {
-                    isPresentingAddMealForm = true
+                    viewModel.addMeal()
                 }) {
                     Image(systemName: "plus")
                 }
             )
-            .sheet(isPresented: $isPresentingAddMealForm) {
-                AddMealView(meals: $meals, saveMeals: saveMeals)
+            .sheet(isPresented: $viewModel.isPresentingAddMealForm) {
+                AddMealView(viewModel: viewModel)
             }
-            .sheet(isPresented: $isPresentingEditMealForm) {
-                if let mealToEdit = mealToEdit {
-                    EditMealView(meal: Binding(get: { mealToEdit }, set: { self.mealToEdit = $0 }), meals: $meals, saveMeals: saveMeals)
+            .sheet(isPresented: $viewModel.isPresentingEditMealForm) {
+                if let mealToEdit = viewModel.mealToEdit {
+                    EditMealView(viewModel: viewModel, meal: mealToEdit)
                 }
             }
-            .onAppear {
-                loadMeals()
-            }
-        }
-    }
-
-    private func saveMeals() {
-        if let encoded = try? JSONEncoder().encode(meals) {
-            UserDefaults.standard.set(encoded, forKey: "Meals")
-        }
-    }
-
-    private func loadMeals() {
-        if let data = UserDefaults.standard.data(forKey: "Meals"),
-           let decoded = try? JSONDecoder().decode([Meal].self, from: data) {
-            meals = decoded
-        }
-    }
-    
-    private func saveGroceryList() {
-        if let encoded = try? JSONEncoder().encode(groceryList.items) {
-            UserDefaults.standard.set(encoded, forKey: "GroceryList")
         }
     }
 }
