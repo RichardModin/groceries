@@ -10,11 +10,13 @@ struct GroceryListView: View {
     @State private var selectedStore = "All"
     @State private var showOnlyNeeds = false
     @State private var isPresentingFilters = false
+    @State private var showInCartOnly = false
 
     var groupedGroceryList: [String: [GroceryItem]] {
         let filteredList = selectedStore == "All" ? groceryList.items :
             groceryList.items.filter { $0.store == selectedStore }
-        let finalList = showOnlyNeeds ? filteredList.filter { $0.need } : filteredList
+        let needsFilteredList = showOnlyNeeds ? filteredList.filter { $0.need } : filteredList
+        let finalList = showInCartOnly ? needsFilteredList.filter { !$0.inCart } : needsFilteredList
         return Dictionary(grouping: finalList, by: { $0.group })
     }
     
@@ -40,15 +42,30 @@ struct GroceryListView: View {
                                         }
                                         Spacer()
                                         Button(action: {
-                                            if let index = groceryList.items.firstIndex(of: item) {
-                                                groceryList.items[index].need.toggle()
-                                                saveGroceryList()
+                                            if !locked {
+                                                if let index = groceryList.items.firstIndex(of: item) {
+                                                    groceryList.items[index].need.toggle()
+                                                    saveGroceryList()
+                                                }
                                             }
                                         }) {
                                             Image(systemName: item.need ? "checkmark.circle.fill" : "circle")
                                                 .foregroundColor(item.need ? .green : .gray)
                                         }
+
+                                        if locked && item.need {
+                                            Button(action: {
+                                                if let index = groceryList.items.firstIndex(of: item) {
+                                                    groceryList.items[index].inCart.toggle()
+                                                    saveGroceryList()
+                                                }
+                                            }) {
+                                                Image(systemName: item.inCart ? "cart.fill" : "cart")
+                                                    .foregroundColor(item.inCart ? .blue : .gray)
+                                            }
+                                        }
                                     }
+                                    .foregroundColor(item.inCart ? .gray : .primary)
                                 }
                                 .onDelete { offsets in
                                     deleteGrocery(at: offsets, in: group)
@@ -79,90 +96,104 @@ struct GroceryListView: View {
                     loadStores()
                     loadGroups()
                 }
-
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            isPresentingFilters = true
-                        }) {
-                            Image(systemName: "line.horizontal.3.decrease.circle.fill")
-                                .resizable()
-                                .frame(width: 50, height: 50)
-                                .foregroundColor(.blue)
-                                .padding()
-                        }
-                    }
-                }
             }
             .sheet(isPresented: $isPresentingFilters) {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("Filters")
-                        .font(.largeTitle)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.bottom)
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Text("Store")
-                                .font(.subheadline)
-                                .bold()
-                            Spacer()
-                            Picker("Filter by store", selection: $selectedStore) {
-                                Text("All").tag("All")
-                                ForEach(groceryStores, id: \.self) { store in
-                                    Text(store).tag(store)
+                NavigationView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text("Store")
+                                    .font(.subheadline)
+                                    .bold()
+                                Spacer()
+                                Picker("Filter by store", selection: $selectedStore) {
+                                    Text("All").tag("All")
+                                    ForEach(groceryStores, id: \.self) { store in
+                                        Text(store).tag(store)
+                                    }
                                 }
+                                .pickerStyle(MenuPickerStyle())
                             }
-                            .pickerStyle(MenuPickerStyle())
                         }
-                    }
-                    .padding()
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Lighter gray border
-                            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2) // Larger, darker shadow
-                    )
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        )
 
-                    VStack(alignment: .leading, spacing: 10) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Spacer()
+                                Toggle(isOn: $showOnlyNeeds) {
+                                    Text("Needs Only")
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
+                                .toggleStyle(SwitchToggleStyle())
+                            }
+                        }
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        )
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Spacer()
+                                Toggle(isOn: $locked) {
+                                    Text("Locked")
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
+                                .toggleStyle(SwitchToggleStyle())
+                            }
+                        }
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        )
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Spacer()
+                                Toggle(isOn: $showInCartOnly) {
+                                    Text("Hide In Cart Items")
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
+                                .toggleStyle(SwitchToggleStyle())
+                            }
+                        }
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        )
+
                         HStack {
-                            Text("Options")
-                                .font(.subheadline)
-                                .bold()
                             Spacer()
-                            Toggle(isOn: $showOnlyNeeds) {
-                                Text("Needs Only")
-                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            Button(action: {
+                                for index in groceryList.items.indices {
+                                    groceryList.items[index].need = false
+                                    groceryList.items[index].inCart = false
+                                }
+                                saveGroceryList()
+                            }) {
+                                Text("Uncheck All")
+                                    .foregroundColor(.blue)
                             }
-                            .toggleStyle(SwitchToggleStyle())
+                            .padding(.top)
                         }
+
+                        Spacer()
                     }
                     .padding()
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Lighter gray border
-                            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2) // Larger, darker shadow
-                    )
-
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            for index in groceryList.items.indices {
-                                groceryList.items[index].need = false
-                                groceryList.items[index].inCart = false
-                            }
-                            saveGroceryList()
-                        }) {
-                            Text("Uncheck All")
-                                .foregroundColor(.blue)
-                        }
-                        .padding(.top)
-                    }
-
-                    Spacer()
+                    .navigationTitle("Filters")
+                    .navigationBarTitleDisplayMode(.inline)
                 }
-                .padding()
             }
         }
     }

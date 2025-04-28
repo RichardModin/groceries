@@ -6,4 +6,5 @@ struct GroceryItem: Identifiable, Hashable, Codable {
     var store: String
     var group: String
     var need: Bool = false
+    var inCart: Bool = false
 }

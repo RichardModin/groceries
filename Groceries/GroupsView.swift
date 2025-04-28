@@ -26,16 +26,16 @@ struct GroupsView: View {
                             ForEach(groups.groupList, id: \.self) { group in
                                 HStack {
                                     Text(group)
-                                    Spacer()
-                                    Button(action: {
-                                        if let index = groups.groupList.firstIndex(of: group) {
-                                            groups.groupList.remove(at: index)
-                                            saveGroups()
+                                        .swipeActions {
+                                            Button(role: .destructive) {
+                                                if let index = groups.groupList.firstIndex(of: group) {
+                                                    groups.groupList.remove(at: index)
+                                                    saveGroups()
+                                                }
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
                                         }
-                                    }) {
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                    }
                                 }
                             }
                         }

@@ -26,16 +26,16 @@ struct StoresView: View {
                             ForEach(stores.storeList, id: \.self) { store in
                                 HStack {
                                     Text(store)
-                                    Spacer()
-                                    Button(action: {
-                                        if let index = stores.storeList.firstIndex(of: store) {
-                                            stores.storeList.remove(at: index)
-                                            saveStores()
+                                        .swipeActions {
+                                            Button(role: .destructive) {
+                                                if let index = stores.storeList.firstIndex(of: store) {
+                                                    stores.storeList.remove(at: index)
+                                                    saveStores()
+                                                }
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
                                         }
-                                    }) {
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                    }
                                 }
                             }
                         }
