@@ -25,7 +25,7 @@ struct ContentView: View {
                     Text("Stores")
                 }
             
-            GroupsView(groups: groups)
+            GroupsView()
                 .tabItem {
                     Image(systemName: "person.3")
                     Text("Groups")
