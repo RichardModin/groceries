@@ -60,6 +60,7 @@ class DataPreloader {
     private func loadInitialData() {
         print("Trying to load.")
         if let url = Bundle.main.url(forResource: "InitialData", withExtension: "json") {
+            print("Found InitialData.json")
             do {
                 let data = try Data(contentsOf: url)
                 let initialData = try JSONDecoder().decode(InitialData.self, from: data)
@@ -73,6 +74,8 @@ class DataPreloader {
             } catch {
                 print("Failed to load initial data: \(error)")
             }
+        } else {
+            print("InitialData.json not found in bundle.")
         }
     }
 

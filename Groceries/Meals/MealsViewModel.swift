@@ -5,12 +5,12 @@ class MealsViewModel: ObservableObject {
     @Published var mealToEdit: Meal?
     @Published var isPresentingAddMealForm = false
     @Published var isPresentingEditMealForm = false
-    @Published var groceryList: GroceryList = GroceryList(items: [])
+    @Published var groceryList: [GroceryItem] = []
     @Published var groupedGroceries: [String: [GroceryItem]] = [:]
     @Published var groupedKeys: [String] = []
 
-    init(groceryList: GroceryList) {
-        self.groceryList = groceryList
+    init() {
+        loadGroceryList()
         loadMeals()
     }
 
@@ -21,8 +21,8 @@ class MealsViewModel: ObservableObject {
 
             if meals[index].need {
                 for grocery in meal.groceries {
-                    if let groceryIndex = groceryList.items.firstIndex(where: { $0.id == grocery.id }) {
-                        groceryList.items[groceryIndex].need = true
+                    if let groceryIndex = groceryList.firstIndex(where: { $0.id == grocery.id }) {
+                        groceryList[groceryIndex].need = true
                     }
                 }
                 saveGroceryList()
@@ -31,12 +31,12 @@ class MealsViewModel: ObservableObject {
     }
     
     func loadGroceryList() {
-        // Load the grocery list (implementation depends on your data source)
-        // Example:
-        groceryList = self.groceryList
+        if let data = UserDefaults.standard.data(forKey: "GroceryList"),
+           let decoded = try? JSONDecoder().decode([GroceryItem].self, from: data) {
+            groceryList = decoded
+        }
 
-        // Precompute groupedGroceries and its keys
-        groupedGroceries = Dictionary(grouping: groceryList.items, by: { $0.group })
+        groupedGroceries = Dictionary(grouping: groceryList, by: { $0.group })
         groupedKeys = groupedGroceries.keys.sorted()
     }
 
@@ -77,16 +77,16 @@ class MealsViewModel: ObservableObject {
         }
     }
 
+    func saveGroceryList() {
+        if let encoded = try? JSONEncoder().encode(groceryList) {
+            UserDefaults.standard.set(encoded, forKey: "GroceryList")
+        }
+    }
+
     private func loadMeals() {
         if let data = UserDefaults.standard.data(forKey: "Meals"),
            let decoded = try? JSONDecoder().decode([Meal].self, from: data) {
             meals = decoded
-        }
-    }
-
-    func saveGroceryList() {
-        if let encoded = try? JSONEncoder().encode(groceryList.items) {
-            UserDefaults.standard.set(encoded, forKey: "GroceryList")
         }
     }
 }

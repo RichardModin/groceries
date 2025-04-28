@@ -1,8 +1,7 @@
 import SwiftUI
 
 struct AddGroceryView: View {
-    @ObservedObject var stores: Stores
-    @ObservedObject var groups: Groups
+    @ObservedObject var viewModel: GroceryViewModel
     @Environment(\.dismiss) var dismiss
     @State private var newItem = ""
     @State private var selectedStore = "None"
@@ -18,7 +17,7 @@ struct AddGroceryView: View {
                 Section(header: Text("Store")) {
                     Picker("Select a store", selection: $selectedStore) {
                         Text("None").tag("None")
-                        ForEach(stores.storeList, id: \.self) { store in
+                        ForEach(viewModel.stores, id: \.self) { store in
                             Text(store)
                         }
                     }
@@ -27,7 +26,7 @@ struct AddGroceryView: View {
                 Section(header: Text("Group")) {
                     Picker("Select a group", selection: $selectedGroup) {
                         Text("None").tag("None")
-                        ForEach(groups.groupList, id: \.self) { group in
+                        ForEach(viewModel.groups, id: \.self) { group in
                             Text(group)
                         }
                     }

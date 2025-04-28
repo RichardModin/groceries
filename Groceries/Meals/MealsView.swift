@@ -1,11 +1,7 @@
 import SwiftUI
 
 struct MealsView: View {
-    @StateObject private var viewModel: MealsViewModel
-
-    init(groceryList: GroceryList) {
-        _viewModel = StateObject(wrappedValue: MealsViewModel(groceryList: groceryList))
-    }
+    @StateObject private var viewModel = MealsViewModel()
 
     var body: some View {
         NavigationView {
@@ -64,6 +60,9 @@ struct MealsView: View {
                 if let mealToEdit = viewModel.mealToEdit {
                     EditMealView(viewModel: viewModel, meal: mealToEdit)
                 }
+            }
+            .onAppear {
+                viewModel.loadGroceryList()
             }
         }
     }

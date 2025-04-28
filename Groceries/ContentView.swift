@@ -1,19 +1,15 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var groceryList = GroceryList()
-    @StateObject private var stores = Stores()
-    @StateObject private var groups = Groups()
-
     var body: some View {
         TabView {
-            GroceryListView(groceryList: groceryList, stores: stores, groups: groups)
+            GroceryListView()
                 .tabItem {
                     Image(systemName: "cart")
                     Text("Groceries")
                 }
             
-            MealsView(groceryList: groceryList)
+            MealsView()
                 .tabItem {
                     Image(systemName: "fork.knife")
                     Text("Meals")
