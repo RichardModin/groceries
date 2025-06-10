@@ -6,11 +6,11 @@ class GroceryViewModel: ObservableObject {
     @Published var groups: [String] = []
     @Published var isPresentingAddForm = false
     @Published var isEditing = false
-    @Published var locked = false
+    @AppStorage("locked") var locked = false
     @Published var selectedStore = "All"
-    @Published var showOnlyNeeds = false
+    @AppStorage("showOnlyNeeds") var showOnlyNeeds = false
     @Published var isPresentingFilters = false
-    @Published var showInCartOnly = false
+    @AppStorage("showInCartOnly") var showInCartOnly = false
 
     var groupedGroceryList: [String: [GroceryItem]] {
         let filteredList = selectedStore == "All" ? groceryList :
